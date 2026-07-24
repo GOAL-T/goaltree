@@ -22,8 +22,8 @@ This is a concept-stage project. The most valuable contributions right now aren'
 ```bash
 git clone https://github.com/furkanYanteri1/GOALT-the-goal-tree.git
 cd GOALT-the-goal-tree
-pip install -r requirements.txt
-python -m pytest  # if/when tests exist
+python3 -m pip install -r requirements-dev.txt
+pytest
 ```
 
 No CLA, no formal process. Open an issue or a PR and it'll get read.

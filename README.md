@@ -51,8 +51,21 @@ Claude calls `create_tree`, `add_goal`, and `list_priorities`, then `open_dashbo
 - `dashboard.py` -- the live, interactive web dashboard (FastAPI + vis-network, single file, no build step), including the hook endpoint Claude Code's PreToolUse hook calls.
 - `.claude-plugin/plugin.json`, `.claude-plugin/marketplace.json`, `.mcp.json`, `hooks/hooks.json` -- plugin packaging so the whole thing installs with two commands (see above).
 - `commands/start.md` -- the `/goalt:start` slash command that onboards GoalT onto an existing codebase.
+- `tests/` -- 62 tests covering the core engine, the dashboard's API/hook logic, and the MCP tools end-to-end (via a real MCP client, the same way Claude Code talks to it). See "Running tests" below.
 
 No CLI, no PyPI packaging yet -- natural next steps if there's interest.
+
+## Running tests
+
+```bash
+python3 -m pip install -r requirements-dev.txt
+pytest
+```
+
+62 tests across three files:
+- `tests/test_goal_tree.py` -- the core engine (multi-parent value propagation, cycle handling, artifact linking, file matching, save/load round-trips), no I/O.
+- `tests/test_dashboard.py` -- pure helper functions, real git fixtures for uncommitted-changes detection, the VS Code diff fallback chain (mocked, no GUI needed), and the FastAPI endpoints via TestClient.
+- `tests/test_mcp_server.py` -- integration tests: a real MCP client talking to a real `mcp_server.py` subprocess over stdio, covering the actual tools (create_tree, add_goal, link_artifacts, set_active_goal, load_tree/persistence, reset_tree). Slower (~30s total) since each test spawns a real process, but it's what actually exercises the tool layer Claude Code calls into.
 
 ## Known open questions
 
