@@ -178,6 +178,13 @@ def _format_ranking(graph: GoalGraph) -> str:
     return "\n".join(lines)
 
 
+def _dashboard_footer() -> str:
+    """Appended to every tool's response so the dashboard URL is always
+    visible in the conversation -- not dependent on Claude remembering to
+    mention it, since it's baked into the returned text itself."""
+    return f"\n\n(Dashboard: {DASHBOARD_URL})"
+
+
 @mcp.tool()
 def load_tree(project_root: str) -> str:
     """Load a previously saved tree for this project, if one exists on disk.
@@ -259,7 +266,7 @@ def add_goal(
     except (ValueError, WeightError) as e:
         return f"Error: {e}"
     _persist(_state)
-    return f"Added '{label}' (id: {id}) under {parents}.\n\n{_format_ranking(graph)}"
+    return f"Added '{label}' (id: {id}) under {parents}.\n\n{_format_ranking(graph)}" + _dashboard_footer()
 
 
 @mcp.tool()
@@ -280,14 +287,14 @@ def link_artifacts(id: str, related_files: list[str] | None = None, related_back
     except ValueError as e:
         return f"Error: {e}"
     _persist(_state)
-    return f"Linked artifacts to '{id}'."
+    return f"Linked artifacts to '{id}'." + _dashboard_footer()
 
 
 @mcp.tool()
 def list_priorities() -> str:
     """Return every goal in the current tree, ranked by its current computed value."""
     graph = _require_graph()
-    return _format_ranking(graph)
+    return _format_ranking(graph) + _dashboard_footer()
 
 
 @mcp.tool()
@@ -307,14 +314,14 @@ def set_active_goal(ids: list[str], reason: str) -> str:
     if unknown:
         return f"Error: unknown goal id(s): {unknown}"
     _state["active_goals"] = {i: reason for i in ids}
-    return f"Marked active: {ids} -- {reason}"
+    return f"Marked active: {ids} -- {reason}" + _dashboard_footer()
 
 
 @mcp.tool()
 def clear_active_goal() -> str:
     """Clear whichever goals were marked active, e.g. once the current unit of work is finished."""
     _state["active_goals"] = {}
-    return "Cleared active goals."
+    return "Cleared active goals." + _dashboard_footer()
 
 
 @mcp.tool()
@@ -345,7 +352,7 @@ def reset_tree() -> str:
     _state["file_edit_goals_raw"] = {}
     _state["uncommitted"] = {}
     _state["project_root"] = None
-    return "Tree cleared."
+    return "Tree cleared." + _dashboard_footer()
 
 
 if __name__ == "__main__":
