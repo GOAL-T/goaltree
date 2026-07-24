@@ -8,6 +8,7 @@ Run with: pytest tests/test_mcp_server.py -v
 
 import json
 import os
+import sys
 
 import pytest
 from mcp import ClientSession, StdioServerParameters
@@ -18,8 +19,14 @@ REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 async def _run_session(project_dir, calls):
     """Start a fresh mcp_server.py subprocess, run `calls` (a list of
-    (tool_name, args) tuples) against it, and return the list of results."""
-    params = StdioServerParameters(command="python3", args=["mcp_server.py"], cwd=REPO_ROOT)
+    (tool_name, args) tuples) against it, and return the list of results.
+
+    Uses sys.executable rather than a bare "python3" so the subprocess is
+    guaranteed to be the same interpreter running pytest -- on machines
+    with more than one Python installed, a bare "python3" can resolve to
+    a different one that doesn't have the project's dependencies.
+    """
+    params = StdioServerParameters(command=sys.executable, args=["mcp_server.py"], cwd=REPO_ROOT)
     results = []
     async with stdio_client(params) as (read, write):
         async with ClientSession(read, write) as session:

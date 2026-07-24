@@ -1,18 +1,11 @@
-This wires up both the MCP tools and the activity hook automatically. You'll need the plugin's Python dependencies installed once -- Claude Code doesn't manage a venv for plugin MCP servers, so clone the repo and install dependencies before (or right after) installing the plugin:
-
-```bash
-git clone https://github.com/furkanYanteri1/GOALT-the-goal-tree.git
-cd GOALT-the-goal-tree
-python3 -m pip install -r requirements.txt
-```
+This wires up both the MCP tools and the activity hook automatically. Dependencies install themselves the first time the server starts (a `bootstrap.sh` finds a suitable Python and runs `pip install` if needed) -- no manual clone or `pip install` step required. The very first tool call may take a few extra seconds while that happens; after that it's instant.
 
 ### Manual install (no activity hook, still works)
 
 ```bash
 git clone https://github.com/furkanYanteri1/GOALT-the-goal-tree.git
 cd GOALT-the-goal-tree
-python3 -m pip install -r requirements.txt
-claude mcp add --transport stdio goalt -- python "$(pwd)/mcp_server.py"
+claude mcp add --transport stdio goalt -- bash "$(pwd)/bootstrap.sh"
 ```
 
 This gets you the tools but not the automatic "Claude is currently..." activity pulse -- that part relies on the plugin's hook, which is only registered via the plugin install path above.
@@ -51,6 +44,7 @@ Claude calls `create_tree`, `add_goal`, and `list_priorities`, then `open_dashbo
 - `dashboard.py` -- the live, interactive web dashboard (FastAPI + vis-network, single file, no build step), including the hook endpoint Claude Code's PreToolUse hook calls.
 - `.claude-plugin/plugin.json`, `.claude-plugin/marketplace.json`, `.mcp.json`, `hooks/hooks.json` -- plugin packaging so the whole thing installs with two commands (see above).
 - `commands/start.md` -- the `/goalt:start` slash command that onboards GoalT onto an existing codebase.
+- `bootstrap.sh` -- the plugin's actual entry point (see `.mcp.json`). Finds a Python 3.10+ interpreter and auto-installs dependencies on first run, so installing the plugin genuinely requires nothing beyond the two `/plugin` commands above -- no separate clone or `pip install` step, and no machine-specific path hardcoded anywhere.
 - `tests/` -- 62 tests covering the core engine, the dashboard's API/hook logic, and the MCP tools end-to-end (via a real MCP client, the same way Claude Code talks to it). See "Running tests" below.
 
 No CLI, no PyPI packaging yet -- natural next steps if there's interest.
