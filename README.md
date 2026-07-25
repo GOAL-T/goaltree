@@ -1,10 +1,78 @@
-This wires up both the MCP tools and the activity hook automatically. Dependencies install themselves the first time the server starts (a `bootstrap.sh` finds a suitable Python and runs `pip install` if needed) -- no manual clone or `pip install` step required. The very first tool call may take a few extra seconds while that happens; after that it's instant.
+# GoalT (Goal Tree)
+
+A multi-parent, value-propagating goal graph. Concept-stage, open source, looking for people to poke holes in it.
+
+[![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/GOAL-T/goaltree/blob/main/demo.ipynb)
+
+## The idea
+
+Most prioritization tools assume a clean hierarchy: one goal breaks into sub-goals, which break into sub-sub-goals, and so on. Real work rarely looks like that. A feature can depend on two other things at once; a bug fix can matter to three different initiatives for three different reasons. Trees don't capture that. A graph might.
+
+GoalT is a small engine for exactly that:
+
+- **One root goal.** Everything traces back to it.
+- **Any goal can have multiple children *and* multiple parents.** It's a DAG, not a tree.
+- **Every parent distributes exactly 1.0 of value across its children.**
+- **A goal with multiple parents accumulates value from each of them** — so goals that genuinely matter to more things naturally float to the top.
+- **Adding a goal only recomputes the part of the graph it affects**, not the whole thing.
+- **Cycles are rejected explicitly**, not silently allowed to loop.
+
+Value redistribution (how a parent splits its value among children) is pluggable. By default it's a simple equal split — deterministic, no API key needed, always converges. You can swap in an LLM to decide weights based on context instead (e.g. "speed matters more than polish this sprint"). The engine never trusts the LLM's numbers directly: whatever comes back gets validated and re-normalized so the graph stays mathematically consistent even if the model returns something odd.
+
+## Try it without installing anything
+
+Click the "Open in Colab" badge above. It opens `demo.ipynb` in your browser, no setup required. Run the cells top to bottom.
+
+## Local install
+
+**Requirements:** Python 3.10+ (the `mcp` package, needed for the Claude Code server, requires it). If you're on macOS and `pip install` fails with errors like "Requires-Python >=3.10" or "No matching distribution found for mcp", you likely have more than one Python installed and `pip` is pointing at the wrong one (common with the Python bundled in Xcode Command Line Tools). Check with `python3 --version`, and if it's 3.10+, use `python3 -m pip install ...` instead of a bare `pip install ...`, which guarantees packages land in the same Python that will actually run the server.
+
+```bash
+git clone https://github.com/GOAL-T/goaltree.git
+cd goaltree
+python3 -m pip install -r requirements.txt
+```
+
+```python
+from goal_tree import GoalGraph
+
+g = GoalGraph()
+g.add_root("root", "Ship v2 of the product")
+g.add_goal("a", "Improve onboarding", parents=["root"])
+g.add_goal("b", "Improve performance", parents=["root"])
+g.add_goal("c", "Fix export bug", parents=["a", "b"])  # depends on both
+
+print(g)
+```
+
+```
+GoalGraph(root='root')
+  1.000  Ship v2 of the product (root)
+  1.000  Fix export bug (c)
+  0.500  Improve onboarding (a)
+  0.500  Improve performance (b)
+```
+
+See `demo.ipynb` for the full walkthrough, including the LLM-backed redistribution example.
+
+## Use it inside Claude Code
+
+GoalT ships as a Claude Code plugin: an MCP server (build and query a tree in conversation) plus a live dashboard that auto-starts with the server and highlights, in real time, which goal Claude is currently working on.
+
+### Install as a plugin (recommended)
+
+```
+/plugin marketplace add GOAL-T/goaltree
+/plugin install goalt@goalt-marketplace
+```
+
+This wires up both the MCP tools and the activity hook automatically. Dependencies install themselves the first time the server starts (a `bootstrap.sh` finds a suitable Python and runs `pip install` if needed), so no manual clone or `pip install` step is required. The very first tool call may take a few extra seconds while that happens; after that it's instant.
 
 ### Manual install (no activity hook, still works)
 
 ```bash
-git clone https://github.com/furkanYanteri1/GOALT-the-goal-tree.git
-cd GOALT-the-goal-tree
+git clone https://github.com/GOAL-T/goaltree.git
+cd goaltree
 claude mcp add --transport stdio goalt -- bash "$(pwd)/bootstrap.sh"
 ```
 

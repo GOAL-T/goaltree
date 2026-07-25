@@ -20,8 +20,8 @@ This is a concept-stage project. The most valuable contributions right now aren'
 ## Setup
 
 ```bash
-git clone https://github.com/furkanYanteri1/GOALT-the-goal-tree.git
-cd GOALT-the-goal-tree
+git clone https://github.com/GOAL-T/goaltree.git
+cd goaltree
 python3 -m pip install -r requirements-dev.txt
 pytest
 ```

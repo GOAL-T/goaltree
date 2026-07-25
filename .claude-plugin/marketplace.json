@@ -2,7 +2,7 @@
   "name": "goalt-marketplace",
   "owner": {
     "name": "Furkan Yanteri",
-    "url": "https://github.com/furkanYanteri1"
+    "url": "https://github.com/GOAL-T"
   },
   "description": "GoalT: a multi-parent, value-propagating goal tree for planning and tracking work in Claude Code, with a live visual dashboard.",
   "plugins": [
