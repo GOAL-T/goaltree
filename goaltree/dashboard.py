@@ -48,7 +48,7 @@ import uvicorn
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse, JSONResponse
 
-from goal_tree import GoalGraph
+from .goal_tree import GoalGraph
 
 PORT = 8765
 

@@ -34,4 +34,7 @@ if ! "$PYTHON" -c "import mcp, fastapi, uvicorn, networkx, matplotlib" 2>/dev/nu
   "$PYTHON" -m pip install -q -r "$DIR/requirements.txt" 1>&2
 fi
 
-exec "$PYTHON" "$DIR/mcp_server.py"
+# Run the server out of the plugin checkout itself (rather than an
+# installed copy), so `/plugin update` takes effect immediately. PYTHONPATH
+# puts $DIR on the import path so `goaltree` resolves without an install.
+exec env PYTHONPATH="$DIR${PYTHONPATH:+:$PYTHONPATH}" "$PYTHON" -m goaltree.mcp_server

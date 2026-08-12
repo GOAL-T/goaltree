@@ -1,0 +1,46 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "goaltree"
+version = "0.6.0"
+description = "A multi-parent, value-propagating goal graph"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+authors = [{ name = "Furkan Yanteri" }]
+keywords = ["planning", "prioritization", "goal-tree", "dag", "project-management", "mcp"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Software Development",
+]
+
+# The core engine is pure graph work -- networkx only. Everything that
+# pulls in a heavier stack is an extra, so `pip install goaltree` stays
+# small for people who just want the library.
+dependencies = ["networkx>=3.0"]
+
+[project.optional-dependencies]
+viz = ["matplotlib>=3.7"]
+mcp = ["mcp>=1.28", "fastapi>=0.110", "uvicorn>=0.29"]
+all = ["goaltree[viz,mcp]"]
+dev = ["goaltree[viz,mcp]", "pytest>=8.0", "pytest-asyncio>=0.24", "httpx>=0.27"]
+
+[project.urls]
+Homepage = "https://goalt.org"
+Repository = "https://github.com/GOAL-T/goaltree"
+Issues = "https://github.com/GOAL-T/goaltree/issues"
+
+[project.scripts]
+goalt-mcp = "goaltree.mcp_server:_main"
+
+[tool.setuptools]
+packages = ["goaltree"]

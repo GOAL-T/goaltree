@@ -7,3 +7,8 @@ venv/
 .DS_Store
 .claude/
 .goalt/
+
+# Build artifacts
+build/
+dist/
+*.egg-info/

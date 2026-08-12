@@ -1,5 +1,5 @@
 """Visualization helpers for GoalGraph -- kept separate from core logic
-so goal_tree.py has no plotting dependency."""
+so goaltree.goal_tree has no plotting dependency."""
 
 import matplotlib.pyplot as plt
 import networkx as nx

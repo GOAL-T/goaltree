@@ -18,10 +18,10 @@ project_root. active_goals / file-edit tracking / uncommitted status are
 NOT persisted -- those are meant to reflect "right now", not history.
 
 Run standalone for local testing:
-    python mcp_server.py
+    python -m goaltree.mcp_server
 
 Add to Claude Code:
-    claude mcp add --transport stdio goalt -- python /absolute/path/to/mcp_server.py
+    claude mcp add --transport stdio goalt -- python -m goaltree.mcp_server
 """
 
 from __future__ import annotations
@@ -31,8 +31,8 @@ import os
 
 from mcp.server.fastmcp import FastMCP
 
-from goal_tree import GoalGraph, CycleError, WeightError
-from dashboard import start_dashboard_in_background
+from .goal_tree import GoalGraph, CycleError, WeightError
+from .dashboard import start_dashboard_in_background
 
 
 mcp = FastMCP(
@@ -355,5 +355,10 @@ def reset_tree() -> str:
     return "Tree cleared." + _dashboard_footer()
 
 
-if __name__ == "__main__":
+def _main() -> None:
+    """Entry point for the `goalt-mcp` console script and `python -m`."""
     mcp.run(transport="stdio")
+
+
+if __name__ == "__main__":
+    _main()

@@ -1,4 +1,4 @@
-"""Tests for goal_tree.py -- the core graph engine.
+"""Tests for goaltree.goal_tree -- the core graph engine.
 
 Run with: pytest tests/test_goal_tree.py -v
 """
@@ -7,7 +7,7 @@ import json
 
 import pytest
 
-from goal_tree import (
+from goaltree.goal_tree import (
     GoalGraph,
     CycleError,
     WeightError,

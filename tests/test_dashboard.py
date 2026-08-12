@@ -1,4 +1,4 @@
-"""Tests for dashboard.py -- pure helper functions, git polling logic, and
+"""Tests for goaltree.dashboard -- pure helper functions, git polling logic, and
 the FastAPI endpoints (via TestClient, no real server needed).
 
 Run with: pytest tests/test_dashboard.py -v
@@ -10,8 +10,8 @@ import time
 import pytest
 from fastapi.testclient import TestClient
 
-from goal_tree import GoalGraph
-from dashboard import (
+from goaltree.goal_tree import GoalGraph
+from goaltree.dashboard import (
     _describe_tool_call,
     _prune_stale_file_edits,
     _git_uncommitted_files,
