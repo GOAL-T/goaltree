@@ -28,13 +28,28 @@ Click the "Open in Colab" badge above. It opens `demo.ipynb` in your browser, no
 **Requirements:** Python 3.10+ (the `mcp` package, needed for the Claude Code server, requires it). If you're on macOS and `pip install` fails with errors like "Requires-Python >=3.10" or "No matching distribution found for mcp", you likely have more than one Python installed and `pip` is pointing at the wrong one (common with the Python bundled in Xcode Command Line Tools). Check with `python3 --version`, and if it's 3.10+, use `python3 -m pip install ...` instead of a bare `pip install ...`, which guarantees packages land in the same Python that will actually run the server.
 
 ```bash
+python3 -m pip install goaltree
+```
+
+The core engine only needs `networkx`. The heavier pieces are extras, so you
+install what you actually use:
+
+```bash
+python3 -m pip install "goaltree[viz]"   # + matplotlib, for visualize.draw
+python3 -m pip install "goaltree[mcp]"   # + the Claude Code MCP server and dashboard
+python3 -m pip install "goaltree[all]"   # everything
+```
+
+Or from source:
+
+```bash
 git clone https://github.com/GOAL-T/goaltree.git
 cd goaltree
-python3 -m pip install -r requirements.txt
+python3 -m pip install -e ".[all]"
 ```
 
 ```python
-from goal_tree import GoalGraph
+from goaltree import GoalGraph
 
 g = GoalGraph()
 g.add_root("root", "Ship v2 of the product")
@@ -52,6 +67,18 @@ GoalGraph(root='root')
   0.500  Improve onboarding (a)
   0.500  Improve performance (b)
 ```
+
+Note that `c` lands on 1.000 while the root is also 1.000, and that `a`, `b`
+and `c` sum to more than the root. That's intentional, not a bug: value is
+conserved **per parent** (each parent splits exactly 1.0 among its children),
+not globally across the graph. A goal serving two parents accumulates from
+both.
+
+So the number isn't a share of a fixed budget, and comparing it to the root's
+1.0 doesn't mean anything. It's a pull-weight: it answers "how much is riding
+on this," not "what fraction of the project is this." Here, the export bug is
+load-bearing for both sub-goals, so nothing else in the graph can be done
+without it mattering — which is exactly what a 1.000 is saying.
 
 See `demo.ipynb` for the full walkthrough, including the LLM-backed redistribution example.
 
@@ -105,29 +132,30 @@ Claude calls `create_tree`, `add_goal`, and `list_priorities`, then `open_dashbo
 
 ## What's actually in this repo
 
-- `goal_tree.py` -- the core engine: graph construction, cycle detection, deterministic value propagation, and the pluggable LLM redistribution hook.
-- `visualize.py` -- a thin matplotlib/networkx wrapper used by `demo.ipynb` to draw a static graph image.
+- `goaltree/goal_tree.py` -- the core engine: graph construction, cycle detection, deterministic value propagation, and the pluggable LLM redistribution hook. The only module with no optional dependencies, and the only one re-exported from `goaltree` directly.
+- `goaltree/visualize.py` -- a thin matplotlib/networkx wrapper used by `demo.ipynb` to draw a static graph image. Needs the `[viz]` extra.
 - `demo.ipynb` -- an interactive, runnable walkthrough (works in Colab, no local setup).
-- `mcp_server.py` -- the MCP server: tools for building/querying the tree, plus best-effort active-goal tracking. Starts the dashboard automatically on load.
-- `dashboard.py` -- the live, interactive web dashboard (FastAPI + vis-network, single file, no build step), including the hook endpoint Claude Code's PreToolUse hook calls.
+- `goaltree/mcp_server.py` -- the MCP server: tools for building/querying the tree, plus best-effort active-goal tracking. Starts the dashboard automatically on load. Needs the `[mcp]` extra.
+- `goaltree/dashboard.py` -- the live, interactive web dashboard (FastAPI + vis-network, single file, no build step), including the hook endpoint Claude Code's PreToolUse hook calls. Needs the `[mcp]` extra.
+- `pyproject.toml` -- packaging metadata; also defines the `goalt-mcp` console script, which is just `python -m goaltree.mcp_server` under a shorter name.
 - `.claude-plugin/plugin.json`, `.claude-plugin/marketplace.json`, `.mcp.json`, `hooks/hooks.json` -- plugin packaging so the whole thing installs with two commands (see above).
 - `commands/start.md` -- the `/goalt:start` slash command that onboards GoalT onto an existing codebase.
 - `bootstrap.sh` -- the plugin's actual entry point (see `.mcp.json`). Finds a Python 3.10+ interpreter and auto-installs dependencies on first run, so installing the plugin genuinely requires nothing beyond the two `/plugin` commands above -- no separate clone or `pip install` step, and no machine-specific path hardcoded anywhere.
 - `tests/` -- 62 tests covering the core engine, the dashboard's API/hook logic, and the MCP tools end-to-end (via a real MCP client, the same way Claude Code talks to it). See "Running tests" below.
 
-No CLI, no PyPI packaging yet -- natural next steps if there's interest.
+No CLI yet -- a natural next step if there's interest.
 
 ## Running tests
 
 ```bash
-python3 -m pip install -r requirements-dev.txt
+python3 -m pip install -e ".[dev]"
 pytest
 ```
 
 62 tests across three files:
 - `tests/test_goal_tree.py` -- the core engine (multi-parent value propagation, cycle handling, artifact linking, file matching, save/load round-trips), no I/O.
 - `tests/test_dashboard.py` -- pure helper functions, real git fixtures for uncommitted-changes detection, the VS Code diff fallback chain (mocked, no GUI needed), and the FastAPI endpoints via TestClient.
-- `tests/test_mcp_server.py` -- integration tests: a real MCP client talking to a real `mcp_server.py` subprocess over stdio, covering the actual tools (create_tree, add_goal, link_artifacts, set_active_goal, load_tree/persistence, reset_tree). Slower (~30s total) since each test spawns a real process, but it's what actually exercises the tool layer Claude Code calls into.
+- `tests/test_mcp_server.py` -- integration tests: a real MCP client talking to a real `goaltree.mcp_server` subprocess over stdio, covering the actual tools (create_tree, add_goal, link_artifacts, set_active_goal, load_tree/persistence, reset_tree). Slower (~30s total) since each test spawns a real process, but it's what actually exercises the tool layer Claude Code calls into.
 
 ## Known open questions
 
