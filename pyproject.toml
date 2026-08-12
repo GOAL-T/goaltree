@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "goaltree"
-version = "0.6.1"
+version = "0.6.2"
 description = "A multi-parent, value-propagating goal graph"
 readme = "README.md"
 requires-python = ">=3.10"

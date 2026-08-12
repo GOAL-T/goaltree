@@ -27,4 +27,4 @@ __all__ = [
     "make_llm_redistribution_fn",
 ]
 
-__version__ = "0.6.1"
+__version__ = "0.6.2"

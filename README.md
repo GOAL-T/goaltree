@@ -1,6 +1,6 @@
 # GoalT (Goal Tree)
 
-<!-- mcp-name: io.github.goal-t/goaltree -->
+<!-- mcp-name: io.github.furkanYanteri1/goaltree -->
 
 A multi-parent, value-propagating goal graph. Concept-stage, open source, looking for people to poke holes in it.
 
