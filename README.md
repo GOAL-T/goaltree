@@ -1,5 +1,7 @@
 # GoalT (Goal Tree)
 
+<!-- mcp-name: io.github.goal-t/goaltree -->
+
 A multi-parent, value-propagating goal graph. Concept-stage, open source, looking for people to poke holes in it.
 
 [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/GOAL-T/goaltree/blob/main/demo.ipynb)

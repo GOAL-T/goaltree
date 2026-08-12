@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "goaltree"
-version = "0.6.0"
+version = "0.6.1"
 description = "A multi-parent, value-propagating goal graph"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -41,6 +41,9 @@ Issues = "https://github.com/GOAL-T/goaltree/issues"
 
 [project.scripts]
 goalt-mcp = "goaltree.mcp_server:_main"
+# Alias matching the distribution name, so `uvx --from "goaltree[mcp]" goaltree`
+# works -- that's the form the MCP registry entry points clients at.
+goaltree = "goaltree.mcp_server:_main"
 
 [tool.setuptools]
 packages = ["goaltree"]
