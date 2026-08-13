@@ -25,8 +25,15 @@ async def _run_session(project_dir, calls):
     guaranteed to be the same interpreter running pytest -- on machines
     with more than one Python installed, a bare "python3" can resolve to
     a different one that doesn't have the project's dependencies.
+
+    Runs in `project_dir` rather than the repo root, because the server
+    auto-loads a tree from its own working directory at startup. With the
+    repo root as cwd, a leftover .goalt/tree.json from real use of GoalT on
+    this repo would silently load into tests that expect no tree at all.
+    PYTHONPATH keeps the package importable from a source checkout.
     """
-    params = StdioServerParameters(command=sys.executable, args=["-m", "goaltree.mcp_server"], cwd=REPO_ROOT)
+    env = {**os.environ, "PYTHONPATH": REPO_ROOT}
+    params = StdioServerParameters(command=sys.executable, args=["-m", "goaltree.mcp_server"], cwd=project_dir, env=env)
     results = []
     async with stdio_client(params) as (read, write):
         async with ClientSession(read, write) as session:
