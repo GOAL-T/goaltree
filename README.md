@@ -4,6 +4,9 @@
 
 A multi-parent, value-propagating goal graph. Concept-stage, open source, looking for people to poke holes in it.
 
+[![PyPI](https://img.shields.io/pypi/v/goaltree.svg)](https://pypi.org/project/goaltree/)
+[![Python](https://img.shields.io/pypi/pyversions/goaltree.svg)](https://pypi.org/project/goaltree/)
+[![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
 [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/GOAL-T/goaltree/blob/main/demo.ipynb)
 
 ## The idea
