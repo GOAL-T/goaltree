@@ -3,13 +3,16 @@
 #
 # Instead of hardcoding a machine-specific Python path (which only works on
 # the machine it was written on), this script finds a suitable Python 3.10+
-# interpreter at runtime, and auto-installs GoalT's dependencies the first
-# time it runs if they're not already present. This means installing the
-# plugin is genuinely just the two `/plugin` commands in the README --
-# no manual `git clone` + `pip install` step required.
+# interpreter at runtime, checks that the server's dependencies are actually
+# importable, and then runs the server.
 #
-# Runs once per server start; after the first run, dependencies are already
-# installed so startup is instant (the import check below is fast).
+# It deliberately does NOT install anything. An earlier version ran
+# `pip install -r requirements.txt` on first start, which meant the plugin
+# fetched and executed code from the network outside the reviewed repository,
+# into whichever interpreter happened to be found first. That is a real
+# supply-chain risk for whoever installs the plugin, and it is also
+# indistinguishable from a malicious pattern to an automated reviewer.
+# Installing the dependencies is now an explicit, one-time step the user runs.
 
 set -e
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -30,8 +33,17 @@ if [ -z "$PYTHON" ]; then
   exit 1
 fi
 
-if ! "$PYTHON" -c "import mcp, fastapi, uvicorn, networkx, matplotlib" 2>/dev/null; then
-  "$PYTHON" -m pip install -q -r "$DIR/requirements.txt" 1>&2
+# Only what the MCP server and dashboard actually need. matplotlib is used by
+# goaltree.visualize, which the server never imports, so it stays optional.
+if ! "$PYTHON" -c "import mcp, fastapi, uvicorn, networkx" 2>/dev/null; then
+  echo "GoalT's server dependencies aren't installed for $PYTHON." >&2
+  echo >&2
+  echo "Install them once with:" >&2
+  echo >&2
+  echo "    $PYTHON -m pip install \"goaltree[mcp]\"" >&2
+  echo >&2
+  echo "then restart Claude Code. GoalT does not install packages for you." >&2
+  exit 1
 fi
 
 # Run the server out of the plugin checkout itself (rather than an

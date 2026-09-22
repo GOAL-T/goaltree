@@ -93,12 +93,20 @@ GoalT ships as a Claude Code plugin: an MCP server (build and query a tree in co
 
 ### Install as a plugin (recommended)
 
+First install the server's dependencies once:
+
+```bash
+python3 -m pip install "goaltree[mcp]"
+```
+
+Then, inside Claude Code:
+
 ```
 /plugin marketplace add GOAL-T/goaltree
 /plugin install goalt@goalt-marketplace
 ```
 
-This wires up both the MCP tools and the activity hook automatically. Dependencies install themselves the first time the server starts (a `bootstrap.sh` finds a suitable Python and runs `pip install` if needed), so no manual clone or `pip install` step is required. The very first tool call may take a few extra seconds while that happens; after that it's instant.
+This wires up both the MCP tools and the activity hook automatically. GoalT deliberately never installs packages for you when the server starts: a plugin that runs `pip install` on startup pulls code from the network outside the repository you just reviewed, and nobody should have to trust a plugin that much. If the dependencies are missing, the server says exactly which command to run instead of installing anything behind your back.
 
 ### Manual install (no activity hook, still works)
 
@@ -145,7 +153,7 @@ Claude calls `create_tree`, `add_goal`, and `list_priorities`, then `open_dashbo
 - `pyproject.toml` -- packaging metadata; also defines the `goalt-mcp` console script, which is just `python -m goaltree.mcp_server` under a shorter name.
 - `.claude-plugin/plugin.json`, `.claude-plugin/marketplace.json`, `.mcp.json`, `hooks/hooks.json` -- plugin packaging so the whole thing installs with two commands (see above).
 - `commands/start.md` -- the `/goalt:start` slash command that onboards GoalT onto an existing codebase.
-- `bootstrap.sh` -- the plugin's actual entry point (see `.mcp.json`). Finds a Python 3.10+ interpreter and auto-installs dependencies on first run, so installing the plugin genuinely requires nothing beyond the two `/plugin` commands above -- no separate clone or `pip install` step, and no machine-specific path hardcoded anywhere.
+- `bootstrap.sh` -- the plugin's actual entry point (see `.mcp.json`). Finds a Python 3.10+ interpreter at runtime, so no machine-specific path is hardcoded anywhere, checks that the server's dependencies are importable, and refuses to start with a copy-pasteable install command if they aren't. It installs nothing itself, by design.
 - `tests/` -- 62 tests covering the core engine, the dashboard's API/hook logic, and the MCP tools end-to-end (via a real MCP client, the same way Claude Code talks to it). See "Running tests" below.
 
 No CLI yet -- a natural next step if there's interest.
