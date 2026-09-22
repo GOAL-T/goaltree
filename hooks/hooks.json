@@ -2,11 +2,12 @@
   "hooks": {
     "PreToolUse": [
       {
-        "matcher": "*",
+        "matcher": "Edit|Write|Read|Bash",
         "hooks": [
           {
-            "type": "http",
-            "url": "http://127.0.0.1:8765/hooks/pre-tool-use",
+            "type": "command",
+            "command": "python3",
+            "args": ["${CLAUDE_PLUGIN_ROOT}/hooks/pulse.py"],
             "timeout": 3
           }
         ]
