@@ -155,7 +155,7 @@ Claude calls `create_tree`, `add_goal`, and `list_priorities`, then `open_dashbo
 - `commands/start.md` -- the `/goalt:start` slash command that onboards GoalT onto an existing codebase.
 - `bootstrap.sh` -- the plugin's actual entry point (see `.mcp.json`). Finds a Python 3.10+ interpreter at runtime, so no machine-specific path is hardcoded anywhere, checks that the server's dependencies are importable, and refuses to start with a copy-pasteable install command if they aren't. It installs nothing itself, by design.
 
-- `hooks/hooks.json`, `hooks/pulse.py` -- the activity pulse. Claude Code hands a `PreToolUse` hook the whole tool payload, which for a `Write` contains the entire file being written; `pulse.py` projects that down to the tool name, the file path and a 60-character command preview (the only fields the dashboard renders) before POSTing it to the dashboard on `127.0.0.1`. Nothing else leaves the hook process.
+- `hooks/hooks.json`, `hooks/pulse.py` -- the activity pulse. Claude Code hands a `PreToolUse` hook the whole tool payload, which for a `Write` contains the entire file being written; `pulse.py` projects that down to the tool name and the file path before POSTing it to the dashboard on `127.0.0.1`. Commands are never sent, not even a preview, so a shell call shows up as "Running: Bash". Nothing else leaves the hook process.
 - `tests/` -- 62 tests covering the core engine, the dashboard's API/hook logic, and the MCP tools end-to-end (via a real MCP client, the same way Claude Code talks to it). See "Running tests" below.
 
 No CLI yet -- a natural next step if there's interest.
