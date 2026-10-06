@@ -1,7 +1,7 @@
 {
   "name": "goalt",
   "version": "0.6.3",
-  "description": "A multi-parent, value-propagating goal tree for planning and tracking work, with a live visual dashboard that highlights what Claude is currently doing, tracks uncommitted changes, and links goals to real files and backend artifacts, with one-click links to open files (and diff uncommitted changes) directly in VS Code.",
+  "description": "A multi-parent, value-propagating goal tree for planning and tracking work in Claude Code. Runs a local MCP server (Python, started by bootstrap.sh, which installs nothing) and a dashboard on 127.0.0.1. A PreToolUse hook sends only the tool name and file path to that local dashboard, so it can highlight what Claude is working on; nothing is sent off your machine. The dashboard tracks uncommitted changes via git status, links goals to real files and backend artifacts, and can open files and diffs in VS Code.",
   "author": {
     "name": "Furkan Yanteri",
     "url": "https://github.com/GOAL-T"
